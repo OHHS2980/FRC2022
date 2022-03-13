@@ -4,13 +4,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.BallManipulatorSubsystem;
 
-public class BallManipulatorAuto extends CommandBase {
+public class BucketAuto extends CommandBase {
     
     private final BallManipulatorSubsystem ballManipulatorSubsystem;
 
     private Timer timer = new Timer();
 
-    public BallManipulatorAuto(BallManipulatorSubsystem ballManipulatorSubsystem) {
+    public BucketAuto(BallManipulatorSubsystem ballManipulatorSubsystem) {
         this.ballManipulatorSubsystem = ballManipulatorSubsystem;
 
         addRequirements(ballManipulatorSubsystem);
@@ -28,14 +28,6 @@ public class BallManipulatorAuto extends CommandBase {
     @Override
     public void execute() {
         ballManipulatorSubsystem.setBucket(true);
-
-        if (timer.hasElapsed(1.5)){
-            ballManipulatorSubsystem.setBucket(false);
-        }
-        
-        if (timer.hasElapsed(2)){
-            ballManipulatorSubsystem.setBucket(true);
-        }
     }
     
     @Override
@@ -45,7 +37,7 @@ public class BallManipulatorAuto extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return timer.hasElapsed(3);
+        return timer.hasElapsed(2);
     }
 
     

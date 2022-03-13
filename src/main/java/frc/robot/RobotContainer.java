@@ -1,5 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 // import java.util.List;
 
 // import edu.wpi.first.math.controller.PIDController;
@@ -22,7 +26,8 @@ import frc.robot.Constants.BallManipulatorConstants;
 import frc.robot.Constants.LifterConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoDriveCmd;
-import frc.robot.commands.BallManipulatorAuto;
+import frc.robot.commands.BucketAuto;
+import frc.robot.commands.IntakeAuto;
 import frc.robot.commands.BallManipulatorCmd;
 import frc.robot.commands.LifterPositionCmd;
 import frc.robot.commands.SwerveJoystickCmd;
@@ -61,6 +66,8 @@ public class RobotContainer {
     ballManipulatorSubsystem.setDefaultCommand(ballManipulatorCmd);
     
     configureButtonBindings();
+
+    CameraServer.startAutomaticCapture(0);
   }
 
   private void configureButtonBindings() {
@@ -127,9 +134,29 @@ public class RobotContainer {
 */
     //5. add some init and wrap up and return everything
     return new SequentialCommandGroup(
+      //reset position
       new InstantCommand(() -> swerveSubsystem.zeroHeading()),
-      new BallManipulatorAuto(ballManipulatorSubsystem),
-      new AutoDriveCmd(swerveSubsystem, 3, 0, 0)
+      new InstantCommand(() -> swerveSubsystem.resetOdometry(new Pose2d(0, 0, new Rotation2d(0)))),
+
+      //drive and pick up the first ball
+      new IntakeAuto(ballManipulatorSubsystem, true, 0.85, 1),
+      new AutoDriveCmd(swerveSubsystem, 2.1, 0, 0),
+      new AutoDriveCmd(swerveSubsystem, 2.1, 0, 27),
+      new IntakeAuto(ballManipulatorSubsystem, false, 0, 0),
+
+      //dump out the balls at the hub
+      new AutoDriveCmd(swerveSubsystem, -1.1, 0.3, 27),
+      new BucketAuto(ballManipulatorSubsystem),
+      
+      //drive and pick up the second ball
+      new AutoDriveCmd(swerveSubsystem, 0.25, 0.3, 90),
+      new IntakeAuto(ballManipulatorSubsystem, true, 0.85, 1),
+      new AutoDriveCmd(swerveSubsystem, 0.25, 4.5, 90),
+      new IntakeAuto(ballManipulatorSubsystem, false, 0, 0),
+      
+      //dump out the ball at the hub
+      new AutoDriveCmd(swerveSubsystem, -1.1, 0.3, 27),
+      new BucketAuto(ballManipulatorSubsystem)
     );
   }
 
